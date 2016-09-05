@@ -46,6 +46,7 @@ public:
 	TH1D *hist_x;
 	TH1D *hist_theta_y;
 	TH1D *hist_theta;
+	TH1D *hist_theta_sq;
 	
 	GenSignal(TRandom3 *, string prefix="", double luminosity_fraction=1);
 	void enableCuts();
@@ -57,6 +58,8 @@ public:
 	double calcX();
 	double calcY();
 	virtual void saveHistos();
+	double getTmax();
+	string getPrefix();
 };
 
 #endif // GENSIGNAL_H

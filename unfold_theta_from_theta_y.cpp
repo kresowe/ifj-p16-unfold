@@ -40,7 +40,7 @@ void unfold_theta_from_theta_y(DetAlpha *detector, DetAlpha *detector_data){
 	
 	
 	Munfold->Draw();
-	cnv->SaveAs("Munfold_theta.png");
+	cnv->SaveAs("unfold_theta.png");
 	
 	Mrefolded->Draw();
 	cnv->SaveAs("Mrefolded_theta.png");
@@ -60,6 +60,14 @@ void unfold_theta_from_theta_y(DetAlpha *detector, DetAlpha *detector_data){
 	cnv->Clear();
 	bestLogTauLogChi2->Draw();
 	cnv->SaveAs("logTauLogChi2.png");
+	cnv->Close();
+
+	TCanvas *cnv_log = new TCanvas();
+	cnv_log->Clear();
+	cnv_log->SetLogy();
+	Munfold->Draw();
+	cnv_log->SaveAs("unfold_theta_log.png");
+	cnv_log->Close();
 	
 	std::cout<<"tau="<<unfold->GetTau()<<"\n";
 	std::cout<<"chi**2="<<unfold->GetChi2A()<<"+"<<unfold->GetChi2L()<<" / "<<unfold->GetNdf()<<"\n";

@@ -35,6 +35,7 @@ public:
 	TH2D *hist2d_t_t_y_alpha;
 	TH1D *hist_theta_alpha;
 	TH2D *hist2d_theta_theta_y_alpha;
+	TH2D *hist2d_theta_sq_theta_y_alpha;
 	
 	//TRandom3 *rnd;
 	

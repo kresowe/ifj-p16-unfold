@@ -19,6 +19,10 @@ DetAlpha::DetAlpha(TRandom3 *rand, string prefix, double luminosity_fraction) : 
     hist_theta_alpha = new TH1D((global_prefix+"Theta_alpha").c_str(),(global_prefix+"Theta_alpha").c_str(),N_BIN,0 ,theta_real_max);
 	hist2d_theta_theta_y_alpha = new TH2D((global_prefix+"theta_theta_y_alpha").c_str(), (global_prefix+"theta_theta_y_y_alpha").c_str(), 
 									N_BIN*detNbinCoef, -theta_real_max, theta_real_max, N_BIN, -theta_real_max, theta_real_max);
+    hist2d_theta_sq_theta_y_alpha = new TH2D((global_prefix+"theta_sq_theta_y_alpha").c_str(), 
+                                    (global_prefix+"theta_sq_theta_y_y_alpha").c_str(), 
+                                    N_BIN*detNbinCoef, -theta_real_max, theta_real_max, N_BIN, 
+                                    -theta_real_max * theta_real_max, theta_real_max * theta_real_max);
 }
 
 bool DetAlpha::calcXAlpha() {
@@ -46,6 +50,7 @@ bool DetAlpha::calcThetaYAlpha() {
         theta_y_alpha =  y_alpha / l_2;
         hist_theta_y_alpha->Fill(theta_y_alpha);
 		hist2d_theta_theta_y_alpha->Fill(theta_y_alpha, theta);
+        hist2d_theta_sq_theta_y_alpha->Fill(theta_y_alpha, theta * theta);
     }
     return cut_status;
 }

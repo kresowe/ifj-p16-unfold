@@ -1,5 +1,7 @@
-#include "gensignal.h"
 #include <string>
+#include <fstream>
+#include <TF1.h>
+#include "gensignal.h"
 
 GenSignal::GenSignal(TRandom3 *rand, string prefix, double luminosity_fraction){
 	rnd=rand;
@@ -25,6 +27,8 @@ GenSignal::GenSignal(TRandom3 *rand, string prefix, double luminosity_fraction){
 	hist_x = new TH1D((global_prefix+"x").c_str(), (global_prefix+"x").c_str(), N_BIN, -x_max, x_max);
 	hist_y = new TH1D((global_prefix+"y").c_str(), (global_prefix+"y").c_str(), N_BIN, -y_max, y_max);
 	hist_theta = new TH1D((global_prefix+"theta").c_str(), (global_prefix+"theta").c_str(), N_BIN, 0,theta_max);
+	hist_theta_sq = new TH1D((global_prefix+"theta_sq").c_str(), (global_prefix+"theta_sq").c_str(), 
+		N_BIN, 0, theta_max * theta_max);
 	hist_theta_y = new TH1D((global_prefix+"theta_y").c_str(), (global_prefix+"theta_y").c_str(), N_BIN, -theta_max, theta_max);
 	}
 	
@@ -61,6 +65,7 @@ void GenSignal::generateGenEvent(double bgr, double tau){
 				hist_t->Fill(t,luminosity_frac);
 				hist_phi->Fill(phi);
 				hist_theta->Fill(theta);
+				hist_theta_sq->Fill(theta * theta);
 				hist_theta_y->Fill(theta_y);
 				cut_status=true;
 			}
@@ -97,12 +102,31 @@ double GenSignal::calcY(){
 		y = theta_y * l_2;
 		return x;
 	}
+
+// double fit_fun_exp(double *x, double *par) {
+// 	return par[0] * exp(-x[0] / par[1]);
+// }
 	
 void GenSignal::saveHistos(){
 		TCanvas *cnv=new TCanvas();
 		cnv->cd();
+
+		TF1 *fun_exp = new TF1("fun_exp", "[0] * exp(-[1] * x)", 0, t_max);
+		fun_exp->SetParameters(10000, 0.05);
+		hist_t->Fit("fun_exp");
 		hist_t->Draw();
+		fun_exp->Draw("same");
 		cnv->SaveAs((global_prefix+"t.png").c_str());
+		TF1 *fun_fit = hist_t->GetFunction("fun_exp");
+		
+		ofstream fout;
+		fout.open((global_prefix + "fit_t.txt").c_str());
+		fout << "fun: A * exp(-B * x)\n";
+		fout << "fitted:\n";
+		fout << "A = " << fun_fit->GetParameter(0) << ", err = " << fun_fit->GetParError(0) << endl;
+		fout << "B = " << fun_fit->GetParameter(1) << ", err = " << fun_fit->GetParError(1) << endl;
+		fout.close();
+
 		hist_phi->Draw();
 		cnv->SaveAs((global_prefix+"phi.png").c_str());
 		hist_x->Draw();
@@ -113,5 +137,25 @@ void GenSignal::saveHistos(){
 		cnv->SaveAs((global_prefix+"theta.png").c_str());
 		hist_theta_y->Draw();
 		cnv->SaveAs((global_prefix+"theta_y.png").c_str());
+
+		//log scale histograms
+		//cnv->Clear();
+		cnv->SetLogy();
+		hist_t->Draw();
+		cnv->SaveAs((global_prefix + "t_log.png").c_str());
+
+		hist_theta->Draw();
+		cnv->SaveAs((global_prefix + "theta_log.png").c_str());
+		
+		hist_theta_sq->Draw();
+		cnv->SaveAs((global_prefix + "theta_sq_log.png").c_str());
 		cnv->Close();
+	}
+
+	double GenSignal::getTmax(){
+		return t_max;
+	}
+
+	string GenSignal::getPrefix(){
+		return global_prefix;
 	}
